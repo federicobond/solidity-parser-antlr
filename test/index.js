@@ -252,14 +252,6 @@ describe("#parse", () => {
             }
           ]
         },
-        "body": {
-          "type": "Block",
-          "statements": []
-        },
-        "visibility": "default",
-        "modifiers": [],
-        "isConstructor": false,
-        "stateMutability": "pure",
         "returnParameters": {
           "parameters": {
             "parameters": [
@@ -278,7 +270,15 @@ describe("#parse", () => {
             "type": "ParameterList"
           },
           "type": "ReturnParameters"
-        }
+        },
+        "body": {
+          "type": "Block",
+          "statements": []
+        },
+        "visibility": "default",
+        "modifiers": [],
+        "isConstructor": false,
+        "stateMutability": "pure"
       })
     })
 

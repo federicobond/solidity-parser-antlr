@@ -96,6 +96,8 @@ const transformAST = {
     }
     const parameters = this.visit(ctx.parameterList())
 
+    const returnParameters = this.visit(ctx.returnParameters())
+
     let block = null
     if (ctx.block()) {
       block = this.visit(ctx.block())
@@ -123,17 +125,15 @@ const transformAST = {
       stateMutability = ctx.modifierList().stateMutability(0).getText()
     }
 
-    const returnParameters = this.visit(ctx.returnParameters())
-
     return {
       name,
       parameters,
+      returnParameters,
       body: block,
       visibility,
       modifiers,
       isConstructor: name === this._currentContract,
       stateMutability,
-      returnParameters,
     }
   },
 
