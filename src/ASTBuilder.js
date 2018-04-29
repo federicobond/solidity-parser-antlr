@@ -123,6 +123,8 @@ const transformAST = {
       stateMutability = ctx.modifierList().stateMutability(0).getText()
     }
 
+    const returnParameters = this.visit(ctx.returnParameters())
+
     return {
       name,
       parameters,
@@ -131,6 +133,7 @@ const transformAST = {
       modifiers,
       isConstructor: name === this._currentContract,
       stateMutability,
+      returnParameters,
     }
   },
 
@@ -780,6 +783,11 @@ const transformAST = {
       type: 'ParameterList',
       parameters
     }
+  },
+
+  ReturnParameters (ctx) {
+    const parameters = this.visit(ctx.parameterList())
+    return { parameters }
   },
 
   ParameterList (ctx) {
