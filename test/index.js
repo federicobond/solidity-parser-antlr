@@ -260,6 +260,57 @@ describe("#parse", () => {
         "modifiers": [],
         "isConstructor": false,
         "stateMutability": "pure",
+        "returnParameters": null,
+      })
+
+      // Function Definition with return parameters
+      ast = parseNode("function foo(uint a) pure returns (uint256) {}")
+      assert.deepEqual(ast, {
+        "type": "FunctionDefinition",
+        "name": "foo",
+        "parameters": {
+          "type": "ParameterList",
+          "parameters": [
+            {
+              "type": "Parameter",
+              "typeName": {
+                "type": "ElementaryTypeName",
+                "name": "uint"
+              },
+              "name": "a",
+              "storageLocation": null,
+              "isStateVar": false,
+              "isIndexed": false
+            }
+          ]
+        },
+        "returnParameters": {
+          "parameters": {
+            "parameters": [
+              {
+                "isIndexed": false,
+                "isStateVar": false,
+                "name": null,
+                "storageLocation": null,
+                "type": "Parameter",
+                "typeName": {
+                  "name": "uint256",
+                  "type": "ElementaryTypeName"
+                }
+              }
+            ],
+            "type": "ParameterList"
+          },
+          "type": "ReturnParameters"
+        },
+        "body": {
+          "type": "Block",
+          "statements": []
+        },
+        "visibility": "default",
+        "modifiers": [],
+        "isConstructor": false,
+        "stateMutability": "pure"
       })
     })
 
