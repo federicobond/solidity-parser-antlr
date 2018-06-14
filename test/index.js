@@ -1351,7 +1351,7 @@ describe("#visit", () => {
     })
   })
 
-  it.only("shouldn't print anything if the lexer fails", () => {
+  it("shouldn't print anything if the lexer fails", () => {
     const originalConsoleError = console.error
     let called = false
     console.error = () => called = true
