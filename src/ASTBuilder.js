@@ -21,7 +21,7 @@ function mapCommasToNulls(children) {
     return acc
   })
 
-  return children.reduce(function(acc, el, idx) {
+  let processed = children.reduce(function(acc, el, idx) {
     // we assume el is a terminal node if it has no children
     if (!el.children) {
       if (comma || idx > lastNotEmpty) {
@@ -35,6 +35,12 @@ function mapCommasToNulls(children) {
     }
     return acc
   }, [])
+
+  if(processed.length == 1 && children.length == 2 && !children[1].children) {
+    processed.push(null);
+  }
+  
+  return processed
 }
 
 const transformAST = {
