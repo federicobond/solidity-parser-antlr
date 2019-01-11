@@ -514,22 +514,3 @@ contract C {
 contract C {
   event e(bytes calldata);
 }
-
-contract demo {
-    function hello() public view returns(bool,bool) {}    
-    function hello2() public view returns(bool) {}
-    function hello3() public view returns(bool,bool,bool) {}   
-
-}
-
-contract demo2 {
-    function world(address _yo) public view {
-        bool yo;
-        yo = demo(_yo).hello2();
-        (yo, ) = demo(_yo).hello();
-        (, yo) = demo(_yo).hello();
-        (yo, , yo) = demo(_yo).hello3();
-        (yo, yo) = demo(_yo).hello();
-        (yo, yo, ) = demo(_yo).hello3();
-    }
-}

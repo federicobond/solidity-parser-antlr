@@ -1303,4 +1303,39 @@ describe('AST', () => {
       "type": "AssemblyIf"
     })
   })
+
+  it("Tupple of type (x, )", function() {
+    var stmt = parseStatement("(x, ) = y.fx();")
+    assert.deepEqual(stmt, {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "BinaryOperation",
+        "operator": "=",
+        "left": {
+          "type": "TupleExpression",
+          "components": [
+            {
+              "type": "Identifier",
+              "name": "x"
+            }, 
+            null
+          ],
+          "isArray": false
+        },
+        "right": {
+          "type": "FunctionCall",
+          "expression": {
+            "type": "MemberAccess",
+            "expression": {
+              "type": "Identifier",
+              "name": "y"
+            },
+            "memberName": "fx"
+          },
+          "arguments": [],
+          "names": []
+        }
+      }
+    })
+  })
 })
