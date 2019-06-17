@@ -118,11 +118,21 @@ const transformAST = {
     const name = toText(ctx.identifier())
     this._currentContract = name
 
-    return {
-      name,
-      baseContracts: this.visit(ctx.inheritanceSpecifier()),
-      subNodes: this.visit(ctx.contractPart()),
-      kind: toText(ctx.getChild(0))
+    if(ctx.natspec()) {
+      return {
+        natspec: toText(ctx.getChild(0)),
+        name,
+        baseContracts: this.visit(ctx.inheritanceSpecifier()),
+        subNodes: this.visit(ctx.contractPart()),
+        kind: toText(ctx.getChild(1))
+      }
+    } else {
+      return {
+        name,
+        baseContracts: this.visit(ctx.inheritanceSpecifier()),
+        subNodes: this.visit(ctx.contractPart()),
+        kind: toText(ctx.getChild(0))
+      }
     }
   },
 
@@ -362,6 +372,20 @@ const transformAST = {
       storageLocation,
       isStateVar: false,
       isIndexed: false
+    }
+  },
+
+  NatSpecComment(ctx) {
+    let isMultiLine = false
+    let commentDeclaration = null
+    if (ctx.natspec()) {
+      isMultiLine = true
+      commentDeclaration = toText(ctx.natspec())
+    }
+
+    return {
+      isMultiLine,
+      commentDeclaration,
     }
   },
 

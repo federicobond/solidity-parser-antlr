@@ -1431,4 +1431,12 @@ describe('AST', () => {
       "type": "AssemblyIf"
     })
   })
+
+  it("NatSpecComment", function() {
+    const ast = parser.parse(
+`/** hello */
+contract Sum { }`
+    );
+    assert.equal(ast.children[0].natspec, '/** hello */');
+  })
 })
