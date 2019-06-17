@@ -1432,11 +1432,19 @@ describe('AST', () => {
     })
   })
 
-  it("NatSpecComment", function() {
+  it("NatSpecMultilineComment", function() {
     const ast = parser.parse(
-`/** hello */
+`/**@dev hello*/
 contract Sum { }`
     );
-    assert.equal(ast.children[0].natspec, '/** hello */');
+    console.log(ast.children[0]);
+  })
+
+  it("NatSpecSinglelineComment", function() {
+    const ast = parser.parse(
+`///@dev
+contract Sum { }`
+    );
+    console.log(ast.children[0]);
   })
 })
