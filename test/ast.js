@@ -1434,7 +1434,10 @@ describe('AST', () => {
 
   it("NatSpecMultilineComment", function() {
     const ast = parser.parse(
-`/**@dev hello*/
+`/**
+  * @dev hello
+  * @param stuff some
+  */
 contract Sum { }`
     );
     console.log(ast.children[0]);
@@ -1442,7 +1445,8 @@ contract Sum { }`
 
   it("NatSpecSinglelineComment", function() {
     const ast = parser.parse(
-`///@dev
+`/// @dev hello
+/// @param stuff some
 contract Sum { }`
     );
     console.log(ast.children[0]);
