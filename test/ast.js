@@ -1434,15 +1434,21 @@ describe('AST', () => {
 
   it("NatSpecMultilineComment", function() {
     const ast = parser.parse(
-`/**@dev hello*/
+`/**
+  * @dev hello
+  * @param stuff some
+  */
 contract Sum { }`
     );
-    assert.deepEqual(ast.children[0], { type: 'ContractDefinition',
-      natspec: '/**@dev hello*/',
-      name: 'Sum',
+    assert.deepEqual(ast.children[0], { type: "ContractDefinition",
+      natspec: {
+        text: "/**\n  * @dev hello\n  * @param stuff some\n  */",
+        type: "NatSpec",
+      },
+      name: "Sum",
       baseContracts: [],
       subNodes: [],
-      kind: 'contract',
+      kind: "contract",
     })
   })
 
@@ -1452,12 +1458,15 @@ contract Sum { }`
 /// @param stuff some
 contract Sum { }`
     );
-    assert.deepEqual(ast.children[0], { type: 'ContractDefinition',
-      natspec: '/// @dev hello\n/// @param stuff some\n',
-      name: 'Sum',
+    assert.deepEqual(ast.children[0], { type: "ContractDefinition",
+      natspec: {
+         text: "/// @dev hello\n/// @param stuff some\n",
+         type: "NatSpec",
+      },
+      name: "Sum",
       baseContracts: [],
       subNodes: [],
-      kind: 'contract',
+      kind: "contract",
     })
   })
 })

@@ -120,7 +120,7 @@ const transformAST = {
 
     if(ctx.natSpec()) {
       return {
-        natspec: toText(ctx.getChild(0)),
+        natspec: this.visit(ctx.natSpec()),
         name,
         baseContracts: this.visit(ctx.inheritanceSpecifier()),
         subNodes: this.visit(ctx.contractPart()),
@@ -375,17 +375,10 @@ const transformAST = {
     }
   },
 
-  NatSpecComment(ctx) {
-    let isMultiLine = false
-    let commentDeclaration = null
-    if (ctx.natspec()) {
-      isMultiLine = true
-      commentDeclaration = toText(ctx.natspec())
-    }
-
+  NatSpec(ctx) {
     return {
-      isMultiLine,
-      commentDeclaration,
+      type: 'NatSpec',
+      text: toText(ctx.getChild(0)),
     }
   },
 
