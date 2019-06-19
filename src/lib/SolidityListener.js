@@ -749,15 +749,6 @@ SolidityListener.prototype.exitElementaryTypeNameExpression = function(ctx) {
 };
 
 
-// Enter a parse tree produced by SolidityParser#natSpecMultilineComment.
-SolidityListener.prototype.enterNatSpecMultilineComment = function(ctx) {
-};
-
-// Exit a parse tree produced by SolidityParser#natSpecMultilineComment.
-SolidityListener.prototype.exitNatSpecMultilineComment = function(ctx) {
-};
-
-
 // Enter a parse tree produced by SolidityParser#natSpec.
 SolidityListener.prototype.enterNatSpec = function(ctx) {
 };

@@ -118,7 +118,7 @@ const transformAST = {
     const name = toText(ctx.identifier())
     this._currentContract = name
 
-    if(ctx.natspec()) {
+    if(ctx.natSpec()) {
       return {
         natspec: toText(ctx.getChild(0)),
         name,
