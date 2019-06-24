@@ -118,21 +118,12 @@ const transformAST = {
     const name = toText(ctx.identifier())
     this._currentContract = name
 
-    if(ctx.natSpec()) {
-      return {
-        natspec: this.visit(ctx.natSpec()),
-        name,
-        baseContracts: this.visit(ctx.inheritanceSpecifier()),
-        subNodes: this.visit(ctx.contractPart()),
-        kind: toText(ctx.getChild(1))
-      }
-    } else {
-      return {
-        name,
-        baseContracts: this.visit(ctx.inheritanceSpecifier()),
-        subNodes: this.visit(ctx.contractPart()),
-        kind: toText(ctx.getChild(0))
-      }
+    return {
+      natspec: this.visit(ctx.natSpec()),
+      name,
+      baseContracts: this.visit(ctx.inheritanceSpecifier()),
+      subNodes: this.visit(ctx.contractPart()),
+      kind: toText(ctx.getChild((ctx.natSpec()) ? 1 : 0))
     }
   },
 
@@ -222,6 +213,7 @@ const transformAST = {
     }
 
     return {
+      natspec: this.visit(ctx.natSpec()),
       name,
       parameters,
       returnParameters,
@@ -376,9 +368,48 @@ const transformAST = {
   },
 
   NatSpec(ctx) {
+    let comment = toText(ctx.getChild(0));
+    let isMultiline = false;
+    if (comment.substring(0, 3) === '/**') {
+      isMultiline = true;
+      comment = comment.replace(/(\r|\n|\/\*\*|\*\/|\*(?=[ ]?@))/g, '');
+    } else if (comment.substring(0, 3) === '///') {
+      comment = comment.replace(/(\r|\n|\/\/\/)/g, '');
+    }
+    const splitComments = comment.split(/@(dev|param)/g);
+    const resultComments = new Map();
+    for (let x = 1; x < splitComments.length; x += 2) {
+      let previousValue = resultComments.get(splitComments[x]);
+      let trimmedComment = splitComments[x + 1].trim();
+      if (splitComments[x] === 'param') {
+        const spliten = trimmedComment.split(' ');
+        trimmedComment = JSON.parse(
+          `{"${spliten[0]}":"${spliten.slice(1, spliten.length).join(' ')}"}`
+        );
+      }
+      if (previousValue !== undefined) {
+        if (Array.isArray(previousValue)) {
+          previousValue.push(trimmedComment);
+        } else {
+          previousValue = [previousValue, trimmedComment];
+        }
+        resultComments.set(splitComments[x], previousValue);
+      } else {
+        resultComments.set(splitComments[x],
+          (splitComments[x] === 'param') ? [trimmedComment] : trimmedComment
+        );
+      }
+    }
+    const obj = Object.create(null);
+    for (const [ k, v ] of resultComments) {
+        // We don’t escape the key '__proto__'
+        // which can cause problems on older engines
+        obj[k] = v;
+    }
     return {
       type: 'NatSpec',
-      text: toText(ctx.getChild(0)),
+      isMultiline,
+      comments: obj,
     }
   },
 
@@ -892,6 +923,7 @@ const transformAST = {
 
   EventDefinition(ctx) {
     return {
+      natspec: this.visit(ctx.natSpec()),
       name: toText(ctx.identifier()),
       parameters: this.visit(ctx.eventParameterList()),
       isAnonymous: !!ctx.AnonymousKeyword()

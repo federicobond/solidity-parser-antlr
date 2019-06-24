@@ -84,6 +84,7 @@ describe('AST', () => {
     var ast = parseContract("contract test {}")
     assert.deepEqual(ast, {
       "type": "ContractDefinition",
+      "natspec": null,
       "name": "test",
       "baseContracts": [],
       "subNodes": [],
@@ -94,6 +95,7 @@ describe('AST', () => {
     ast = parseContract("contract test is foo, bar {}")
     assert.deepEqual(ast, {
       "type": "ContractDefinition",
+      "natspec": null,
       "name": "test",
       "baseContracts": [
         {
@@ -121,6 +123,7 @@ describe('AST', () => {
     ast = parseContract("library test {}")
     assert.deepEqual(ast, {
       "type": "ContractDefinition",
+      "natspec": null,
       "name": "test",
       "baseContracts": [],
       "subNodes": [],
@@ -131,6 +134,7 @@ describe('AST', () => {
     ast = parseContract("interface test {}")
     assert.deepEqual(ast, {
       "type": "ContractDefinition",
+      "natspec": null,
       "name": "test",
       "baseContracts": [],
       "subNodes": [],
@@ -174,6 +178,7 @@ describe('AST', () => {
     var ast = parseNode("function foo(uint a) pure {}")
     assert.deepEqual(ast, {
       "type": "FunctionDefinition",
+      "natspec": null,
       "name": "foo",
       "parameters": {
         "type": "ParameterList",
@@ -206,6 +211,7 @@ describe('AST', () => {
     ast = parseNode("function foo(uint a) pure returns (uint256) {}")
     assert.deepEqual(ast, {
       "type": "FunctionDefinition",
+      "natspec": null,
       "name": "foo",
       "parameters": {
         "type": "ParameterList",
@@ -1029,6 +1035,7 @@ describe('AST', () => {
     assert.deepEqual(ast, {
       "type": "EventDefinition",
       "name": "Foo",
+      "natspec": null,
       "parameters": {
         "type": "ParameterList",
         "parameters": [
@@ -1432,17 +1439,28 @@ describe('AST', () => {
     })
   })
 
-  it("NatSpecMultilineComment", function() {
+  it("NatSpec multi line", function () {
     const ast = parser.parse(
 `/**
   * @dev hello
-  * @param stuff some
+  * @param stuff some food
+  * @param no more pizza today
+  * @param yes please, another one tomorrow
   */
 contract Sum { }`
     );
-    assert.deepEqual(ast.children[0], { type: "ContractDefinition",
+    assert.deepEqual(ast.children[0], {
+      type: "ContractDefinition",
       natspec: {
-        text: "/**\n  * @dev hello\n  * @param stuff some\n  */",
+        comments: {
+          dev: "hello",
+          param: [
+            { stuff: "some food" },
+            { no: "more pizza today" },
+            { yes: "please, another one tomorrow" }
+          ]
+        },
+        isMultiline: true,
         type: "NatSpec",
       },
       name: "Sum",
@@ -1452,21 +1470,72 @@ contract Sum { }`
     })
   })
 
-  it("NatSpecSinglelineComment", function() {
+  it("NatSpec single line", function () {
     const ast = parser.parse(
 `/// @dev hello
-/// @param stuff some
+/// @param stuff some food
+/// @param no more pizza today
+/// @param yes please, another one tomorrow
 contract Sum { }`
     );
-    assert.deepEqual(ast.children[0], { type: "ContractDefinition",
+    assert.deepEqual(ast.children[0], {
+      type: "ContractDefinition",
       natspec: {
-         text: "/// @dev hello\n/// @param stuff some\n",
-         type: "NatSpec",
+        comments: {
+          dev: "hello",
+          param: [
+            { stuff: "some food" },
+            { no: "more pizza today" },
+            { yes: "please, another one tomorrow" }
+          ]
+        },
+        isMultiline: false,
+        type: "NatSpec",
       },
       name: "Sum",
       baseContracts: [],
       subNodes: [],
       kind: "contract",
+    })
+  })
+
+  it("NatSpec multi line event", function () {
+    const ast = parseNode(
+`/**
+  * @dev hello
+  * @param x some variable sent
+  */
+  event some(uint256 x);`
+    );
+    assert.deepEqual(ast.natspec, {
+      comments: {
+        dev: "hello",
+        param: [
+          { x: "some variable sent" },
+        ]
+      },
+      isMultiline: true,
+      type: "NatSpec",
+    })
+  })
+
+  it("NatSpec multi line function", function () {
+    const ast = parseNode(
+`/**
+  * @dev hello
+  * @param x some variable sent
+  */
+ function foo(uint x) pure {}`);
+
+    assert.deepEqual(ast.natspec, {
+      comments: {
+        dev: "hello",
+        param: [
+          { x: "some variable sent" },
+        ]
+      },
+      isMultiline: true,
+      type: "NatSpec",
     })
   })
 })
