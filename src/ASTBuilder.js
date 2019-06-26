@@ -1,5 +1,5 @@
 const antlr4 = require('./antlr4/index')
-const ParseComments = require('./ParseComments');
+const ParseComments = require('./ParseNatSpec');
 
 function toText(ctx) {
   if (ctx !== null) {
