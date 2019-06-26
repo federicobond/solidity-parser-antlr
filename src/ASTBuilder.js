@@ -1,4 +1,5 @@
 const antlr4 = require('./antlr4/index')
+const ParseComments = require('./ParseComments');
 
 function toText(ctx) {
   if (ctx !== null) {
@@ -368,48 +369,12 @@ const transformAST = {
   },
 
   NatSpec(ctx) {
-    let comment = toText(ctx.getChild(0));
-    let isMultiline = false;
-    if (comment.substring(0, 3) === '/**') {
-      isMultiline = true;
-      comment = comment.replace(/(\r|\n|\/\*\*|\*\/|\*(?=[ ]?@))/g, '');
-    } else if (comment.substring(0, 3) === '///') {
-      comment = comment.replace(/(\r|\n|\/\/\/)/g, '');
-    }
-    const splitComments = comment.split(/@(dev|param)/g);
-    const resultComments = new Map();
-    for (let x = 1; x < splitComments.length; x += 2) {
-      let previousValue = resultComments.get(splitComments[x]);
-      let trimmedComment = splitComments[x + 1].trim();
-      if (splitComments[x] === 'param') {
-        const spliten = trimmedComment.split(' ');
-        trimmedComment = JSON.parse(
-          `{"${spliten[0]}":"${spliten.slice(1, spliten.length).join(' ')}"}`
-        );
-      }
-      if (previousValue !== undefined) {
-        if (Array.isArray(previousValue)) {
-          previousValue.push(trimmedComment);
-        } else {
-          previousValue = [previousValue, trimmedComment];
-        }
-        resultComments.set(splitComments[x], previousValue);
-      } else {
-        resultComments.set(splitComments[x],
-          (splitComments[x] === 'param') ? [trimmedComment] : trimmedComment
-        );
-      }
-    }
-    const obj = Object.create(null);
-    for (const [ k, v ] of resultComments) {
-        // We don’t escape the key '__proto__'
-        // which can cause problems on older engines
-        obj[k] = v;
-    }
+    const comment = toText(ctx.getChild(0));
+    const [ isMultiline, parsedComments ] = ParseComments(comment);
     return {
       type: 'NatSpec',
       isMultiline,
-      comments: obj,
+      comments: parsedComments,
     }
   },
 
