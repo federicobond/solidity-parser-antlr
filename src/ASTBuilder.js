@@ -1,5 +1,5 @@
 const antlr4 = require('./antlr4/index')
-const ParseComments = require('./ParseNatSpec');
+const parseComments = require('./natspec');
 
 function toText(ctx) {
   if (ctx !== null) {
@@ -369,13 +369,7 @@ const transformAST = {
   },
 
   NatSpec(ctx) {
-    const comment = toText(ctx.getChild(0));
-    const [ isMultiline, parsedComments ] = ParseComments(comment);
-    return {
-      type: 'NatSpec',
-      isMultiline,
-      comments: parsedComments,
-    }
+    return parseComments(toText(ctx.getChild(0)));
   },
 
   EventParameter(ctx) {

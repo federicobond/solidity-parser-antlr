@@ -4,12 +4,9 @@
  * @param comment full text comment
  */
 module.exports = function (comment) {
-  let isMultiline = false;
-
   // remove comments definers
   // the comments can be multiline of single line
   if (comment.substring(0, 3) === '/**') {
-    isMultiline = true;
     // if it is a multiline, remove line breaks, "/**"" (the comment begin)
     // "*/"" (the comment end), and "* @" at the begining of each comment
     comment = comment.replace(/(\r|\n|\/\*\*|\*\/|\*(?=[ ]?@))/g, '');
@@ -23,7 +20,7 @@ module.exports = function (comment) {
   const splitComments = comment
     .split(/@(title|author|notice|dev|param|return)/g);
   // let's start a map
-  const resultComments = new Map();
+  const resultComments = {};
 
   // iterate through all the split comments
   // start in the second result (because the first one is usually nothing)
@@ -31,18 +28,17 @@ module.exports = function (comment) {
   // the natspec type
   for (let x = 1; x < splitComments.length; x += 2) {
 
+    const key = splitComments[x];
+    let value = splitComments[x + 1].trim();
     // verify if the type exists in the map
-    let previousValue = resultComments.get(splitComments[x]);
-
-    // trim the comment
-    let trimmedComment = splitComments[x + 1].trim();
+    let previousValue = resultComments[key];
 
     // if the comment if type 'param' we need to extract the first word
     // which is the variable name
-    if (splitComments[x] === 'param') {
-      const spliten = trimmedComment.split(' ');
+    if (key === 'param') {
+      const spliten = value.split(' ');
       // and then rebuild it in JSON format
-      trimmedComment = JSON.parse(
+      value = JSON.parse(
         `{"${spliten[0]}":"${spliten.slice(1, spliten.length).join(' ')}"}`
       );
     }
@@ -50,26 +46,17 @@ module.exports = function (comment) {
     // finally, if the value was found, update it
     if (previousValue !== undefined) {
       if (Array.isArray(previousValue)) {
-        previousValue.push(trimmedComment);
+        previousValue.push(value);
       } else {
-        previousValue = [previousValue, trimmedComment];
+        previousValue = [previousValue, value];
       }
-      resultComments.set(splitComments[x], previousValue);
+      resultComments[key] = previousValue;
     } else {
       // otherwise set the value for the first time
       // in case it is 'param' type, it should be an array
       // even if there's only one comment (just to have a pattern)
-      resultComments.set(splitComments[x],
-        (splitComments[x] === 'param') ? [trimmedComment] : trimmedComment
-      );
+      resultComments[key] = (key === 'param') ? [value] : value;
     }
   }
-  // convert map to pseudo-json
-  const obj = Object.create(null);
-  for (const [k, v] of resultComments) {
-    // We don’t escape the key '__proto__'
-    // which can cause problems on older engines
-    obj[k] = v;
-  }
-  return [isMultiline, obj]
+  return resultComments
 }

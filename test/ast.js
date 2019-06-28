@@ -1452,16 +1452,13 @@ contract Sum { }`
     assert.deepEqual(ast.children[0], {
       type: "ContractDefinition",
       natspec: {
-        comments: {
-          dev: "hello",
-          param: [
-            { stuff: "some food" },
-            { no: "more pizza today" },
-            { yes: "please, another one tomorrow" }
-          ]
-        },
-        isMultiline: true,
-        type: "NatSpec",
+        dev: "hello",
+        param: [
+          { stuff: "some food" },
+          { no: "more pizza today" },
+          { yes: "please, another one tomorrow" }
+        ],
+        type: "NatSpec"
       },
       name: "Sum",
       baseContracts: [],
@@ -1481,16 +1478,13 @@ contract Sum { }`
     assert.deepEqual(ast.children[0], {
       type: "ContractDefinition",
       natspec: {
-        comments: {
-          dev: "hello",
-          param: [
-            { stuff: "some food" },
-            { no: "more pizza today" },
-            { yes: "please, another one tomorrow" }
-          ]
-        },
-        isMultiline: false,
-        type: "NatSpec",
+        dev: "hello",
+        param: [
+          { stuff: "some food" },
+          { no: "more pizza today" },
+          { yes: "please, another one tomorrow" }
+        ],
+        type: "NatSpec"
       },
       name: "Sum",
       baseContracts: [],
@@ -1508,14 +1502,11 @@ contract Sum { }`
   event some(uint256 x);`
     );
     assert.deepEqual(ast.natspec, {
-      comments: {
-        dev: "hello",
-        param: [
-          { x: "some variable sent" },
-        ]
-      },
-      isMultiline: true,
-      type: "NatSpec",
+      dev: "hello",
+      param: [
+        { x: "some variable sent" },
+      ],
+      type: "NatSpec"
     })
   })
 
@@ -1528,14 +1519,11 @@ contract Sum { }`
  function foo(uint x) pure {}`);
 
     assert.deepEqual(ast.natspec, {
-      comments: {
-        dev: "hello",
-        param: [
-          { x: "some variable sent" },
-        ]
-      },
-      isMultiline: true,
-      type: "NatSpec",
+      dev: "hello",
+      param: [
+        { x: "some variable sent" },
+      ],
+      type: "NatSpec"
     })
   })
 })
