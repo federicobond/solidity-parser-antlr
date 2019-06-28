@@ -1457,8 +1457,7 @@ contract Sum { }`
           { stuff: "some food" },
           { no: "more pizza today" },
           { yes: "please, another one tomorrow" }
-        ],
-        type: "NatSpec"
+        ]
       },
       name: "Sum",
       baseContracts: [],
@@ -1483,8 +1482,7 @@ contract Sum { }`
           { stuff: "some food" },
           { no: "more pizza today" },
           { yes: "please, another one tomorrow" }
-        ],
-        type: "NatSpec"
+        ]
       },
       name: "Sum",
       baseContracts: [],
@@ -1505,8 +1503,7 @@ contract Sum { }`
       dev: "hello",
       param: [
         { x: "some variable sent" },
-      ],
-      type: "NatSpec"
+      ]
     })
   })
 
@@ -1522,8 +1519,7 @@ contract Sum { }`
       dev: "hello",
       param: [
         { x: "some variable sent" },
-      ],
-      type: "NatSpec"
+      ]
     })
   })
 })

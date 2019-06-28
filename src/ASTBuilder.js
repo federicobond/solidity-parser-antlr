@@ -117,14 +117,22 @@ const transformAST = {
 
   ContractDefinition(ctx) {
     const name = toText(ctx.identifier())
+    let natspec = null
+    let kind
+    if (ctx.natSpec()) {
+      natspec = parseComments(toText(ctx.getChild(0)))
+      kind = toText(ctx.getChild(1))
+    } else {
+      kind = toText(ctx.getChild(0))
+    }
     this._currentContract = name
 
     return {
-      natspec: this.visit(ctx.natSpec()),
+      natspec,
       name,
       baseContracts: this.visit(ctx.inheritanceSpecifier()),
       subNodes: this.visit(ctx.contractPart()),
-      kind: toText(ctx.getChild((ctx.natSpec()) ? 1 : 0))
+      kind
     }
   },
 
@@ -213,8 +221,13 @@ const transformAST = {
       stateMutability = toText(ctx.modifierList().stateMutability(0))
     }
 
+    let natspec = null
+    if (ctx.natSpec()) {
+      natspec = parseComments(toText(ctx.getChild(0)))
+    }
+
     return {
-      natspec: this.visit(ctx.natSpec()),
+      natspec,
       name,
       parameters,
       returnParameters,
@@ -366,10 +379,6 @@ const transformAST = {
       isStateVar: false,
       isIndexed: false
     }
-  },
-
-  NatSpec(ctx) {
-    return parseComments(toText(ctx.getChild(0)));
   },
 
   EventParameter(ctx) {
@@ -881,8 +890,12 @@ const transformAST = {
   },
 
   EventDefinition(ctx) {
+    let natspec = null
+    if (ctx.natSpec()) {
+      natspec = parseComments(toText(ctx.getChild(0)))
+    }
     return {
-      natspec: this.visit(ctx.natSpec()),
+      natspec,
       name: toText(ctx.identifier()),
       parameters: this.visit(ctx.eventParameterList()),
       isAnonymous: !!ctx.AnonymousKeyword()
