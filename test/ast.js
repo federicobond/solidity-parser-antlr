@@ -1493,9 +1493,9 @@ contract Sum { }`
     );
     assert.deepEqual(ast.natspec, {
       dev: "This method says hello",
-      param: [
-        { user: "the user address" },
-      ],
+      params: {
+        user: "the user address"
+      },
     })
   })
 
@@ -1511,11 +1511,11 @@ contract Sum { }`
 
     assert.deepEqual(ast.natspec, {
       dev: "This method transfer fund to other user",
-      param: [
-        { from: "the address extract funds" },
-        { to: "the user address to give funds" },
-        { amount: "the amount to transfer" },
-      ],
+      params: {
+        from: "the address extract funds",
+        to: "the user address to give funds",
+        amount: "the amount to transfer",
+      },
     })
   })
   it("NatSpec multi line multiple functions in contract", function () {
@@ -1541,17 +1541,17 @@ contract Sum { }`
     const methods = ast.children[0].subNodes;
     assert.deepEqual(methods[0].natspec, {
       dev: 'This method transfer fund to other user',
-      param:[
-        { from: 'the address extract funds' },
-        { to: 'the user address to give funds' },
-        { amount: 'the amount to transfer' },
-      ],
+      params: {
+        from: 'the address extract funds',
+        to: 'the user address to give funds',
+        amount: 'the amount to transfer',
+      },
     });
     assert.deepEqual(methods[1].natspec, {
       dev: 'This method gets the approved amount',
-      param: [
-        { user: 'the user address to verify' },
-      ],
+      params: {
+        user: 'the user address to verify',
+      },
       return: 'the approved amount',
     });
   })

@@ -29,33 +29,23 @@ module.exports = function (comment) {
   for (let x = 1; x < splitComments.length; x += 2) {
 
     const key = splitComments[x];
-    let value = splitComments[x + 1].trim();
-    // verify if the type exists in the map
-    let previousValue = resultComments[key];
+    const value = splitComments[x + 1].trim();
 
     // if the comment if type 'param' we need to extract the first word
     // which is the variable name
     if (key === 'param') {
-      const spliten = value.split(' ');
-      // and then rebuild it in JSON format
-      value = JSON.parse(
-        `{"${spliten[0]}":"${spliten.slice(1, spliten.length).join(' ')}"}`
-      );
-    }
+      const sep = value.indexOf(' ');
+      const paramName = value.substring(0, sep);
+      const paramValue = value.substring(sep + 1);
 
-    // finally, if the value was found, update it
-    if (previousValue !== undefined) {
-      if (Array.isArray(previousValue)) {
-        previousValue.push(value);
-      } else {
-        previousValue = [previousValue, value];
+      if (resultComments['params'] == null) {
+        resultComments['params'] = {}
       }
-      resultComments[key] = previousValue;
+
+      resultComments['params'][paramName] = paramValue
     } else {
-      // otherwise set the value for the first time
-      // in case it is 'param' type, it should be an array
-      // even if there's only one comment (just to have a pattern)
-      resultComments[key] = (key === 'param') ? [value] : value;
+      // finally, if the value was found, update it
+      resultComments[key] = value;
     }
   }
   return resultComments
