@@ -1442,22 +1442,18 @@ describe('AST', () => {
   it("NatSpec multi line", function () {
     const ast = parser.parse(
 `/**
-  * @dev hello
-  * @param stuff some food
-  * @param no more pizza today
-  * @param yes please, another one tomorrow
+  * @dev This is the Sum contract.
+  * @title Sum Contract
+  * @author username
   */
 contract Sum { }`
     );
     assert.deepEqual(ast.children[0], {
       type: "ContractDefinition",
       natspec: {
-        dev: "hello",
-        param: [
-          { stuff: "some food" },
-          { no: "more pizza today" },
-          { yes: "please, another one tomorrow" }
-        ]
+        dev: "This is the Sum contract.",
+        title: "Sum Contract",
+        author: "username",
       },
       name: "Sum",
       baseContracts: [],
@@ -1468,21 +1464,17 @@ contract Sum { }`
 
   it("NatSpec single line", function () {
     const ast = parser.parse(
-`/// @dev hello
-/// @param stuff some food
-/// @param no more pizza today
-/// @param yes please, another one tomorrow
+`/// @dev This is the Sum contract.
+/// @title Sum Contract
+/// @author username
 contract Sum { }`
     );
     assert.deepEqual(ast.children[0], {
       type: "ContractDefinition",
       natspec: {
-        dev: "hello",
-        param: [
-          { stuff: "some food" },
-          { no: "more pizza today" },
-          { yes: "please, another one tomorrow" }
-        ]
+        dev: "This is the Sum contract.",
+        title: "Sum Contract",
+        author: "username",
       },
       name: "Sum",
       baseContracts: [],
@@ -1494,32 +1486,73 @@ contract Sum { }`
   it("NatSpec multi line event", function () {
     const ast = parseNode(
 `/**
-  * @dev hello
-  * @param x some variable sent
+  * @dev This method says hello
+  * @param user the user address
   */
-  event some(uint256 x);`
+  event sayHello(address user);`
     );
     assert.deepEqual(ast.natspec, {
-      dev: "hello",
+      dev: "This method says hello",
       param: [
-        { x: "some variable sent" },
-      ]
+        { user: "the user address" },
+      ],
     })
   })
 
   it("NatSpec multi line function", function () {
     const ast = parseNode(
 `/**
-  * @dev hello
-  * @param x some variable sent
+  * @dev This method transfer fund to other user
+  * @param from the address extract funds
+  * @param to the user address to give funds
+  * @param amount the amount to transfer
   */
- function foo(uint x) pure {}`);
+ function transfer(address from, address to, uint256 amount) public {}`);
 
     assert.deepEqual(ast.natspec, {
-      dev: "hello",
+      dev: "This method transfer fund to other user",
       param: [
-        { x: "some variable sent" },
-      ]
+        { from: "the address extract funds" },
+        { to: "the user address to give funds" },
+        { amount: "the amount to transfer" },
+      ],
     })
+  })
+  it("NatSpec multi line multiple functions in contract", function () {
+    const ast = parser.parse(
+`/**
+  * @dev The ERC20 contract
+  */
+ contract ERC20 {
+    /**
+     * @dev This method transfer fund to other user
+     * @param from the address extract funds
+     * @param to the user address to give funds
+     * @param amount the amount to transfer
+     */
+    function transfer(address from, address to, uint256 amount) public {}
+    /**
+     * @dev This method gets the approved amount
+     * @param user the user address to verify
+     * @return the approved amount
+     */
+    function approved(address user) public view returns(uint256) {}
+ }`);
+    const methods = ast.children[0].subNodes;
+    assert.deepEqual(methods[0].natspec, {
+      dev: 'This method transfer fund to other user',
+      param:[
+        { from: 'the address extract funds' },
+        { to: 'the user address to give funds' },
+        { amount: 'the amount to transfer' },
+      ],
+    });
+    assert.deepEqual(methods[1].natspec, {
+      dev: 'This method gets the approved amount',
+      param: [
+        { user: 'the user address to verify' },
+      ],
+      return: 'the approved amount',
+    });
   })
 })
