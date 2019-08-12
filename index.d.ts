@@ -208,18 +208,20 @@ export interface ExpressionStatement extends BaseASTNode {
 export interface IfStatement extends BaseASTNode {
   type: 'IfStatement';
   condition: Expression;
-  trueBody: Statement;
-  falseBody?: Statement;
+  trueBody: Block;
+  falseBody?: Block;
 }
 export interface WhileStatement extends BaseASTNode {
   type: 'WhileStatement';
+  condition: Expression;
+  body: Block;
 }
 export interface ForStatement extends BaseASTNode {
   type: 'ForStatement';
   initExpression?: SimpleStatement;
   conditionExpression?: Expression;
   loopExpression?: ExpressionStatement;
-  body: Statement;
+  body: Block;
 }
 export interface InlineAssemblyStatement extends BaseASTNode {
   type: 'InlineAssemblyStatement';
@@ -229,7 +231,7 @@ export interface InlineAssemblyStatement extends BaseASTNode {
 export interface DoWhileStatement extends BaseASTNode {
   type: 'DoWhileStatement';
   condition: Expression;
-  body: Statement;
+  body: Block;
 }
 export interface ContinueStatement extends BaseASTNode {
   type: 'ContinueStatement';
