@@ -665,4 +665,5 @@ export interface ParserOpts {
   loc?: boolean;
 }
 export function parse(sourceCode: string, parserOpts: ParserOpts): ASTNode;
+export function parseType(sourceCode: string, parserOpts: ParserOpts): ASTNode;
 export function visit(ast: ASTNode, visitor: Visitor): void;
