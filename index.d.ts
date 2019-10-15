@@ -31,10 +31,6 @@ export type ASTNodeTypeString =
   | 'EventDefinition'
   | 'EnumValue'
   | 'EnumDefinition'
-  | 'ParameterList'
-  | 'Parameter'
-  | 'EventParameterList'
-  | 'EventParameter'
   | 'VariableDeclaration'
   | 'UserDefinedTypeName'
   | 'Mapping'
@@ -76,7 +72,7 @@ export type ASTNodeTypeString =
   | 'AssemblyLiteral'
   | 'SubAssembly'
   | 'TupleExpression'
-  | 'ElementaryTypeNameExpression'
+  | 'TypeNameExpression'
   | 'BooleanLiteral'
   | 'NumberLiteral'
   | 'Identifier'
@@ -148,18 +144,18 @@ export interface ModifierInvocation extends BaseASTNode {
 export interface FunctionDefinition extends BaseASTNode {
   type: 'FunctionDefinition';
   name?: string;
-  parameters: ParameterList;
+  parameters: VariableDeclaration[];
   modifiers: ModifierInvocation[];
   stateMutability?: 'pure' | 'constant' | 'payable' | 'view'
   visibility: 'default' | 'external' | 'internal' | 'public' | 'private';
   isConstructor: boolean;
-  returnParameters?: ParameterList;
+  returnParameters?: VariableDeclaration[];
   body?: Block;
 }
 export interface EventDefinition extends BaseASTNode {
   type: 'EventDefinition';
   name: string;
-  parameters: ParameterList;
+  parameters: VariableDeclaration[];
 }
 export interface EnumValue extends BaseASTNode {
   type: 'EnumValue';
@@ -169,13 +165,6 @@ export interface EnumDefinition extends BaseASTNode {
   type: 'EnumDefinition';
   name: string;
   members: EnumValue[];
-}
-export interface ParameterList extends BaseASTNode {
-  type: 'ParameterList';
-  parameters: Parameter[];
-}
-export interface Parameter extends BaseASTNode {
-  type: 'Parameter';
 }
 export interface VariableDeclaration extends BaseASTNode {
   type: 'VariableDeclaration';
@@ -333,9 +322,9 @@ export interface TupleExpression extends BaseASTNode {
   components: Expression[];
   isArray: boolean;
 }
-export interface ElementaryTypeNameExpression extends BaseASTNode {
-  type: 'ElementaryTypeNameExpression';
-  typeName: ElementaryTypeName;
+export interface TypeNameExpression extends BaseASTNode {
+  type: 'TypeNameExpression';
+  typeName: ElementaryTypeName | UserDefinedTypeName;
 }
 export interface NumberLiteral extends BaseASTNode {
   type: 'NumberLiteral';
@@ -458,8 +447,6 @@ export type ASTNode =
   | EventDefinition
   | EnumValue
   | EnumDefinition
-  | ParameterList
-  | Parameter
   | VariableDeclaration
   | TypeName
   | UserDefinedTypeName
@@ -494,7 +481,7 @@ export type ASTNode =
   | AssemblyLiteral
   | SubAssembly
   | TupleExpression
-  | ElementaryTypeNameExpression
+  | TypeNameExpression
   | BinaryOperation
   | Conditional
   | IndexAccess
@@ -537,8 +524,8 @@ export type PrimaryExpression =
   | NumberLiteral
   | Identifier
   | TupleExpression
-  | ElementaryTypeNameExpression;
-export type SimpleStatement=
+  | TypeNameExpression;
+export type SimpleStatement =
   | VariableDeclarationStatement
   | ExpressionStatement;
 export type TypeName =
@@ -576,8 +563,6 @@ export interface Visitor {
   EventDefinition?: (node: EventDefinition) => any;
   EnumValue?: (node: EnumValue) => any;
   EnumDefinition?: (node: EnumDefinition) => any;
-  ParameterList?: (node: ParameterList) => any;
-  Parameter?: (node: Parameter) => any;
   VariableDeclaration?: (node: VariableDeclaration) => any;
   UserDefinedTypeName?: (node: UserDefinedTypeName) => any;
   Mapping?: (node: Mapping) => any;
@@ -612,7 +597,7 @@ export interface Visitor {
   AssemblyLiteral?: (node: AssemblyLiteral) => any;
   SubAssembly?: (node: SubAssembly) => any;
   TupleExpression?: (node: TupleExpression) => any;
-  ElementaryTypeNameExpression?: (node: ElementaryTypeNameExpression) => any;
+  TypeNameExpression?: (node: TypeNameExpression) => any;
   NumberLiteral?: (node: NumberLiteral) => any;
   BooleanLiteral?: (node: BooleanLiteral) => any;
   Identifier?: (node: Identifier) => any;
@@ -639,8 +624,6 @@ export interface Visitor {
   'EventDefinition:exit'?: (node: EventDefinition) => any;
   'EnumValue:exit'?: (node: EnumValue) => any;
   'EnumDefinition:exit'?: (node: EnumDefinition) => any;
-  'ParameterList:exit'?: (node: ParameterList) => any;
-  'Parameter:exit'?: (node: Parameter) => any;
   'VariableDeclaration:exit'?: (node: VariableDeclaration) => any;
   'UserDefinedTypeName:exit'?: (node: UserDefinedTypeName) => any;
   'Mapping:exit'?: (node: Mapping) => any;
@@ -677,8 +660,8 @@ export interface Visitor {
   'AssemblyLiteral:exit'?: (node: AssemblyLiteral) => any;
   'SubAssembly:exit'?: (node: SubAssembly) => any;
   'TupleExpression:exit'?: (node: TupleExpression) => any;
-  'ElementaryTypeNameExpression:exit'?: (
-    node: ElementaryTypeNameExpression
+  'TypeNameExpression:exit'?: (
+    node: TypeNameExpression
   ) => any;
   'NumberLiteral:exit'?: (node: NumberLiteral) => any;
   'BooleanLiteral:exit'?: (node: BooleanLiteral) => any;

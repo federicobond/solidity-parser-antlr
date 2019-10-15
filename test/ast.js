@@ -84,6 +84,7 @@ describe('AST', () => {
     var ast = parseContract("contract test {}")
     assert.deepEqual(ast, {
       "type": "ContractDefinition",
+      "natspec": null,
       "name": "test",
       "baseContracts": [],
       "subNodes": [],
@@ -94,6 +95,7 @@ describe('AST', () => {
     ast = parseContract("contract test is foo, bar {}")
     assert.deepEqual(ast, {
       "type": "ContractDefinition",
+      "natspec": null,
       "name": "test",
       "baseContracts": [
         {
@@ -121,6 +123,7 @@ describe('AST', () => {
     ast = parseContract("library test {}")
     assert.deepEqual(ast, {
       "type": "ContractDefinition",
+      "natspec": null,
       "name": "test",
       "baseContracts": [],
       "subNodes": [],
@@ -131,6 +134,7 @@ describe('AST', () => {
     ast = parseContract("interface test {}")
     assert.deepEqual(ast, {
       "type": "ContractDefinition",
+      "natspec": null,
       "name": "test",
       "baseContracts": [],
       "subNodes": [],
@@ -143,22 +147,19 @@ describe('AST', () => {
     assert.deepEqual(ast, {
       "type": "FunctionDefinition",
       "name": null,
-      "parameters": {
-        "type": "ParameterList",
-        "parameters": [
-          {
-            "type": "Parameter",
-            "typeName": {
-              "type": "ElementaryTypeName",
-              "name": "uint"
-            },
-            "name": "a",
-            "storageLocation": null,
-            "isStateVar": false,
-            "isIndexed": false
-          }
-        ]
-      },
+      "parameters": [
+        {
+          "type": "VariableDeclaration",
+          "typeName": {
+            "type": "ElementaryTypeName",
+            "name": "uint"
+          },
+          "name": "a",
+          "storageLocation": null,
+          "isStateVar": false,
+          "isIndexed": false
+        }
+      ],
       "body": {
         "type": "Block",
         "statements": []
@@ -174,23 +175,21 @@ describe('AST', () => {
     var ast = parseNode("function foo(uint a) pure {}")
     assert.deepEqual(ast, {
       "type": "FunctionDefinition",
+      "natspec": null,
       "name": "foo",
-      "parameters": {
-        "type": "ParameterList",
-        "parameters": [
-          {
-            "type": "Parameter",
-            "typeName": {
-              "type": "ElementaryTypeName",
-              "name": "uint"
-            },
-            "name": "a",
-            "storageLocation": null,
-            "isStateVar": false,
-            "isIndexed": false
-          }
-        ]
-      },
+      "parameters": [
+        {
+          "type": "VariableDeclaration",
+          "typeName": {
+            "type": "ElementaryTypeName",
+            "name": "uint"
+          },
+          "name": "a",
+          "storageLocation": null,
+          "isStateVar": false,
+          "isIndexed": false
+        }
+      ],
       "returnParameters": null,
       "body": {
         "type": "Block",
@@ -206,39 +205,34 @@ describe('AST', () => {
     ast = parseNode("function foo(uint a) pure returns (uint256) {}")
     assert.deepEqual(ast, {
       "type": "FunctionDefinition",
+      "natspec": null,
       "name": "foo",
-      "parameters": {
-        "type": "ParameterList",
-        "parameters": [
-          {
-            "type": "Parameter",
-            "typeName": {
-              "type": "ElementaryTypeName",
-              "name": "uint"
-            },
-            "name": "a",
-            "storageLocation": null,
-            "isStateVar": false,
-            "isIndexed": false
+      "parameters": [
+        {
+          "type": "VariableDeclaration",
+          "typeName": {
+            "type": "ElementaryTypeName",
+            "name": "uint"
+          },
+          "name": "a",
+          "storageLocation": null,
+          "isStateVar": false,
+          "isIndexed": false
+        }
+      ],
+      "returnParameters": [
+        {
+          "isIndexed": false,
+          "isStateVar": false,
+          "name": null,
+          "storageLocation": null,
+          "type": "VariableDeclaration",
+          "typeName": {
+            "name": "uint256",
+            "type": "ElementaryTypeName"
           }
-        ]
-      },
-      "returnParameters": {
-        "type": "ParameterList",
-        "parameters": [
-          {
-            "isIndexed": false,
-            "isStateVar": false,
-            "name": null,
-            "storageLocation": null,
-            "type": "Parameter",
-            "typeName": {
-              "name": "uint256",
-              "type": "ElementaryTypeName"
-            }
-          }
-        ],
-      },
+        }
+      ],
       "body": {
         "type": "Block",
         "statements": []
@@ -283,13 +277,25 @@ describe('AST', () => {
     })
   })
 
-  it("ElementaryTypeNameExpression", function() {
+  it("TypeNameExpression", function() {
     var stmt = parseStatement("uint(a);")
     assert.deepEqual(stmt.expression.expression, {
-      "type": "ElementaryTypeNameExpression",
+      "type": "TypeNameExpression",
       "typeName": {
         "type": "ElementaryTypeName",
         "name": "uint"
+      }
+    })
+    stmt = parseStatement("A.B[];")
+    assert.deepEqual(stmt.expression, {
+      "type": "TypeNameExpression",
+      "typeName": {
+        "type": "ArrayTypeName",
+        "baseTypeName": {
+          "type": "UserDefinedTypeName",
+          "namePath": "A.B"
+        },
+        "length": null
       }
     })
   })
@@ -322,22 +328,28 @@ describe('AST', () => {
     // typename as expression
     ast = parseExpression("A[]")
     assert.deepEqual(ast, {
-      "type": "ArrayTypeName",
-      "baseTypeName": {
-        "type": "UserDefinedTypeName",
-        "namePath": "A"
-      },
-      "length": null
+      "type": "TypeNameExpression",
+      "typeName": {
+        "type": "ArrayTypeName",
+        "baseTypeName": {
+          "type": "UserDefinedTypeName",
+          "namePath": "A"
+        },
+        "length": null
+      }
     })
 
     ast = parseExpression("uint256[]")
     assert.deepEqual(ast, {
-      "type": "ArrayTypeName",
-      "baseTypeName": {
-        "type": "ElementaryTypeName",
-        "name": "uint256"
-      },
-      "length": null
+      "type": "TypeNameExpression",
+      "typeName": {
+        "type": "ArrayTypeName",
+        "baseTypeName": {
+          "type": "ElementaryTypeName",
+          "name": "uint256"
+        },
+        "length": null
+      }
     })
   })
 
@@ -594,13 +606,44 @@ describe('AST', () => {
       "number": ".1",
       "subdenomination": null
     })
+
+    expr = parseExpression("1_000_000")
+    assert.deepEqual(expr, {
+      "type": "NumberLiteral",
+      "number": "1_000_000",
+      "subdenomination": null
+    })
   })
 
-  it("StringLiteral", function() {
+  it("StringLiteral with double quotes", function() {
     var expr = parseExpression("\"Hello\"")
     assert.deepEqual(expr, {
       "type": "StringLiteral",
       "value": "Hello",
+    })
+  })
+
+  it("StringLiteral with single quotes", function() {
+    var expr = parseExpression("'Hello'")
+    assert.deepEqual(expr, {
+      "type": "StringLiteral",
+      "value": "Hello",
+    })
+  })
+
+  it("StringLiteral with escaped double quotes", function() {
+    var expr = parseExpression("\"Hello \\\"goodbye\\\"\"")
+    assert.deepEqual(expr, {
+      "type": "StringLiteral",
+      "value": "Hello \"goodbye\"",
+    })
+  })
+
+  it("StringLiteral with escaped single quotes", function() {
+    var expr = parseExpression("'Hello \\\'goodbye\\\''")
+    assert.deepEqual(expr, {
+      "type": "StringLiteral",
+      "value": "Hello 'goodbye'",
     })
   })
 
@@ -637,6 +680,16 @@ describe('AST', () => {
 
   it("ModifierDefinition", function() {
     var ast = parseNode("modifier onlyOwner {}")
+    assert.deepEqual(ast, {
+      "type": "ModifierDefinition",
+      "name": "onlyOwner",
+      "parameters": null,
+      "body": {
+        "type": "Block",
+        "statements": []
+      }
+    })
+    var ast = parseNode("modifier onlyOwner() {}")
     assert.deepEqual(ast, {
       "type": "ModifierDefinition",
       "name": "onlyOwner",
@@ -686,26 +739,41 @@ describe('AST', () => {
 
   it("FunctionCall", function() {
     var expr = parseExpression("f(1, 2)")
-		assert.deepEqual(expr, {
-			"type": "FunctionCall",
-			"expression": {
-				"type": "Identifier",
-				"name": "f"
-			},
-			"arguments": [
-				{
-					"type": "NumberLiteral",
-					"number": "1",
-					"subdenomination": null
-				},
-				{
-					"type": "NumberLiteral",
-					"number": "2",
-					"subdenomination": null
-				}
-			],
-			"names": []
-		})
+    assert.deepEqual(expr, {
+      "type": "FunctionCall",
+      "expression": {
+        "type": "Identifier",
+        "name": "f"
+      },
+      "arguments": [
+        {
+          "type": "NumberLiteral",
+          "number": "1",
+          "subdenomination": null
+        },
+        {
+          "type": "NumberLiteral",
+          "number": "2",
+          "subdenomination": null
+        }
+      ],
+      "names": []
+    })
+    var expr = parseExpression("type(MyContract)")
+    assert.deepEqual(expr, {
+      "type": "FunctionCall",
+      "expression": {
+        "type": "Identifier",
+        "name": "type"
+      },
+      "arguments": [
+        {
+          "type": "Identifier",
+          "name": "MyContract",
+        }
+      ],
+      "names": []
+    })
   })
 
   it("StateVariableDeclaration", function() {
@@ -1029,31 +1097,29 @@ describe('AST', () => {
     assert.deepEqual(ast, {
       "type": "EventDefinition",
       "name": "Foo",
-      "parameters": {
-        "type": "ParameterList",
-        "parameters": [
-          {
-            "type": "VariableDeclaration",
-            "typeName": {
-              "type": "ElementaryTypeName",
-              "name": "address"
-            },
-            "name": "a",
-            "isStateVar": false,
-            "isIndexed": true
+      "natspec": null,
+      "parameters": [
+        {
+          "type": "VariableDeclaration",
+          "typeName": {
+            "type": "ElementaryTypeName",
+            "name": "address"
           },
-          {
-            "type": "VariableDeclaration",
-            "typeName": {
-              "type": "ElementaryTypeName",
-              "name": "uint"
-            },
-            "name": "b",
-            "isStateVar": false,
-            "isIndexed": false
-          }
-        ]
-      },
+          "name": "a",
+          "isStateVar": false,
+          "isIndexed": true
+        },
+        {
+          "type": "VariableDeclaration",
+          "typeName": {
+            "type": "ElementaryTypeName",
+            "name": "uint"
+          },
+          "name": "b",
+          "isStateVar": false,
+          "isIndexed": false
+        }
+      ],
       "isAnonymous": false
     })
   })
@@ -1430,5 +1496,122 @@ describe('AST', () => {
       },
       "type": "AssemblyIf"
     })
+  })
+
+  it("NatSpec multi line", function () {
+    const ast = parser.parse(
+`/**
+  * @dev This is the Sum contract.
+  * @title Sum Contract
+  * @author username
+  */
+contract Sum { }`
+    );
+    assert.deepEqual(ast.children[0], {
+      type: "ContractDefinition",
+      natspec: {
+        dev: "This is the Sum contract.",
+        title: "Sum Contract",
+        author: "username",
+      },
+      name: "Sum",
+      baseContracts: [],
+      subNodes: [],
+      kind: "contract",
+    })
+  })
+
+  it("NatSpec single line", function () {
+    const ast = parser.parse(
+`/// @dev This is the Sum contract.
+/// @title Sum Contract
+/// @author username
+contract Sum { }`
+    );
+    assert.deepEqual(ast.children[0], {
+      type: "ContractDefinition",
+      natspec: {
+        dev: "This is the Sum contract.",
+        title: "Sum Contract",
+        author: "username",
+      },
+      name: "Sum",
+      baseContracts: [],
+      subNodes: [],
+      kind: "contract",
+    })
+  })
+
+  it("NatSpec multi line event", function () {
+    const ast = parseNode(
+`/**
+  * @dev This method says hello
+  * @param user the user address
+  */
+  event sayHello(address user);`
+    );
+    assert.deepEqual(ast.natspec, {
+      dev: "This method says hello",
+      params: {
+        user: "the user address"
+      },
+    })
+  })
+
+  it("NatSpec multi line function", function () {
+    const ast = parseNode(
+`/**
+  * @dev This method transfer fund to other user
+  * @param from the address extract funds
+  * @param to the user address to give funds
+  * @param amount the amount to transfer
+  */
+ function transfer(address from, address to, uint256 amount) public {}`);
+
+    assert.deepEqual(ast.natspec, {
+      dev: "This method transfer fund to other user",
+      params: {
+        from: "the address extract funds",
+        to: "the user address to give funds",
+        amount: "the amount to transfer",
+      },
+    })
+  })
+  it("NatSpec multi line multiple functions in contract", function () {
+    const ast = parser.parse(
+`/**
+  * @dev The ERC20 contract
+  */
+ contract ERC20 {
+    /**
+     * @dev This method transfer fund to other user
+     * @param from the address extract funds
+     * @param to the user address to give funds
+     * @param amount the amount to transfer
+     */
+    function transfer(address from, address to, uint256 amount) public {}
+    /**
+     * @dev This method gets the approved amount
+     * @param user the user address to verify
+     * @return the approved amount
+     */
+    function approved(address user) public view returns(uint256) {}
+ }`);
+    const methods = ast.children[0].subNodes;
+    assert.deepEqual(methods[0].natspec, {
+      dev: 'This method transfer fund to other user',
+      params: {
+        from: 'the address extract funds',
+        to: 'the user address to give funds',
+        amount: 'the amount to transfer',
+      },
+    });
+    assert.deepEqual(methods[1].natspec, {
+      dev: 'This method gets the approved amount',
+      params: {
+        user: 'the user address to verify',
+      },
+      return: 'the approved amount',
+    });
   })
 })

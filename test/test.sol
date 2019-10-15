@@ -68,7 +68,7 @@ contract base {
   }
 }
 
-contract derived is base {
+contract derived is base() {
   function fun() {
     uint64(2);
   }
@@ -519,5 +519,8 @@ contract test {
     function world(bytes memory b) public {
         uint256[] memory a;
         a = abi.decode(b, (uint256[]));
+
+        bytes memory itemBytes;
+        Imported.Item[] memory items = abi.decode(itemBytes, (Imported.Item[]));
     }
 }

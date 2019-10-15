@@ -1,4 +1,5 @@
 const antlr4 = require('./antlr4/index')
+const parseComments = require('./natspec')
 
 function toText(ctx) {
   if (ctx !== null) {
@@ -116,20 +117,33 @@ const transformAST = {
 
   ContractDefinition(ctx) {
     const name = toText(ctx.identifier())
+    let natspec = null
+    let kind
+    if (ctx.natSpec()) {
+      natspec = parseComments(toText(ctx.getChild(0)))
+      kind = toText(ctx.getChild(1))
+    } else {
+      kind = toText(ctx.getChild(0))
+    }
     this._currentContract = name
 
     return {
+      natspec,
       name,
       baseContracts: this.visit(ctx.inheritanceSpecifier()),
       subNodes: this.visit(ctx.contractPart()),
-      kind: toText(ctx.getChild(0))
+      kind
     }
   },
 
   InheritanceSpecifier(ctx) {
+    const exprList = ctx.expressionList()
+    const args = (exprList != null)
+      ? this.visit(exprList.expression()) : []
+
     return {
       baseName: this.visit(ctx.userDefinedTypeName()),
-      arguments: this.visit(ctx.expression())
+      arguments: args
     }
   },
 
@@ -211,7 +225,13 @@ const transformAST = {
       stateMutability = toText(ctx.modifierList().stateMutability(0))
     }
 
+    let natspec = null
+    if (ctx.natSpec()) {
+      natspec = parseComments(toText(ctx.getChild(0)))
+    }
+
     return {
+      natspec,
       name,
       parameters,
       returnParameters,
@@ -241,9 +261,13 @@ const transformAST = {
     }
   },
 
-  ElementaryTypeNameExpression(ctx) {
+  TypeNameExpression(ctx) {
+    let typeName = ctx.elementaryTypeName()
+    if (typeName === null) {
+      typeName = ctx.userDefinedTypeName()
+    }
     return {
-      typeName: this.visit(ctx.elementaryTypeName())
+      typeName: this.visit(typeName)
     }
   },
 
@@ -256,7 +280,7 @@ const transformAST = {
 
       return {
         type: 'ArrayTypeName',
-        baseTypeName: this.visit(ctx.getChild(0)),
+        baseTypeName: this.visit(ctx.typeName()),
         length
       }
     }
@@ -472,7 +496,7 @@ const transformAST = {
   },
 
   ModifierDefinition(ctx) {
-    let parameters = []
+    let parameters = null
     if (ctx.parameterList()) {
       parameters = this.visit(ctx.parameterList())
     }
@@ -719,9 +743,21 @@ const transformAST = {
 
     if (ctx.StringLiteral()) {
       const text = toText(ctx)
+      const singleQuotes = text[0] === "'"
+      const textWithoutQuotes = text.substring(1, text.length - 1)
+      const value = singleQuotes
+        ? textWithoutQuotes.replace(new RegExp("\\\\'", 'g'), "'")
+        : textWithoutQuotes.replace(new RegExp('\\\\"', 'g'), '"')
       return {
         type: 'StringLiteral',
-        value: text.substring(1, text.length - 1)
+        value
+      }
+    }
+
+    if (ctx.TypeKeyword()) {
+      return {
+        type: 'Identifier',
+        name: 'type'
       }
     }
 
@@ -736,16 +772,24 @@ const transformAST = {
           type: 'UserDefinedTypeName',
           namePath: node.name
         }
+      } else if (node.type == 'TypeNameExpression') {
+        node = node.typeName
       } else {
         node = {
           type: 'ElementaryTypeName',
           name: toText(ctx.getChild(0))
         }
       }
-      return {
+
+      const typeName = {
         type: 'ArrayTypeName',
         baseTypeName: node,
         length: null
+      }
+
+      return {
+        type: 'TypeNameExpression',
+        typeName
       }
     }
 
@@ -874,7 +918,12 @@ const transformAST = {
   },
 
   EventDefinition(ctx) {
+    let natspec = null
+    if (ctx.natSpec()) {
+      natspec = parseComments(toText(ctx.getChild(0)))
+    }
     return {
+      natspec,
       name: toText(ctx.identifier()),
       parameters: this.visit(ctx.eventParameterList()),
       isAnonymous: !!ctx.AnonymousKeyword()
@@ -882,7 +931,7 @@ const transformAST = {
   },
 
   EventParameterList(ctx) {
-    const parameters = ctx.eventParameter().map(function(paramCtx) {
+    return ctx.eventParameter().map(function(paramCtx) {
       const type = this.visit(paramCtx.typeName())
       let name = null
       if (paramCtx.identifier()) {
@@ -900,11 +949,6 @@ const transformAST = {
         paramCtx
       )
     }, this)
-
-    return {
-      type: 'ParameterList',
-      parameters
-    }
   },
 
   ReturnParameters(ctx) {
@@ -912,8 +956,7 @@ const transformAST = {
   },
 
   ParameterList(ctx) {
-    const parameters = ctx.parameter().map(paramCtx => this.visit(paramCtx))
-    return { parameters }
+    return ctx.parameter().map(paramCtx => this.visit(paramCtx))
   },
 
   Parameter(ctx) {
@@ -928,6 +971,7 @@ const transformAST = {
     }
 
     return {
+      type: 'VariableDeclaration',
       typeName: this.visit(ctx.typeName()),
       name,
       storageLocation,
