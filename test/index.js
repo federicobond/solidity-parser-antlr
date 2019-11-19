@@ -165,6 +165,29 @@ describe("#parseType", function() {
   })
 })
 
+describe("#parseExpression", function() {
+  it(`parses an expression`, function() {
+      const exprs = [
+	["1", "NumberLiteral"],
+	["a","Identifier"],
+	["this.foo","MemberAccess"],
+	["1+3","BinaryOperation"],
+	["1+4*5","BinaryOperation"],
+	["(1+3)*5","BinaryOperation"],
+	["foo[4]", "IndexAccess"],
+	["this.bar[a]", "IndexAccess"],
+	["this.bar[a](1,2+3,c[5])", "FunctionCall"]
+      ]
+
+      for (let i=0; i<exprs.length; i++) {
+	      let expr = exprs[i][0]
+	      let nodeType = exprs[i][1]
+	      var parsedT = parser.parseExpression(expr, { strict: true })
+	      assert.equal(parsedT.type, nodeType)
+      }
+  })
+})
+
 describe("#visit", function() {
 
   it("walks visitor through AST", function() {

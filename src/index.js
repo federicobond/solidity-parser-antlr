@@ -123,6 +123,53 @@ function parseType(input, options) {
   return ast
 }
 
+function parseExpression(input, options) {
+  options = options || {}
+
+  const chars = antlr4.CharStreams.fromString(input)
+
+  const listener = new ErrorListener()
+
+  const lexer = new SolidityLexer(chars)
+  lexer.removeErrorListeners()
+  lexer.addErrorListener(listener)
+
+  const tokens = new antlr4.CommonTokenStream(lexer)
+
+  const parser = new SolidityParser(tokens)
+
+  parser.removeErrorListeners()
+  parser.addErrorListener(listener)
+  parser.buildParseTrees = true
+
+  const tree = parser.expression()
+
+  let tokenList
+  if (options.tokens) {
+    const tokenSource = tokens.tokenSource
+    tokenSource.reset()
+
+    tokenList = buildTokenList(tokenSource.getAllTokens(), options)
+  }
+
+  if (!options.tolerant && listener.hasErrors()) {
+    throw new ParserError({ errors: listener.getErrors() })
+  }
+
+  const visitor = new ASTBuilder(options)
+  const ast = visitor.visit(tree)
+
+  if (options.tolerant && listener.hasErrors()) {
+    ast.errors = listener.getErrors()
+  }
+  if (options.tokens) {
+    ast.tokens = tokenList
+  }
+
+  return ast
+}
+
+
 function _isASTNode(node) {
   return (!!node && typeof node === 'object' &&
           Object.prototype.hasOwnProperty.call(node, 'type'))
@@ -158,5 +205,6 @@ function visit(node, visitor) {
 exports.tokenize = tokenize
 exports.parse = parse
 exports.parseType = parseType
+exports.parseExpression = parseExpression
 exports.visit = visit
 exports.ParserError = ParserError
