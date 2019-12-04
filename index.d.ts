@@ -513,6 +513,7 @@ export type Expression =
   | IndexAccess
   | TupleExpression
   | BinaryOperation
+  | UnaryOperation
   | Conditional
   | MemberAccess
   | FunctionCall
