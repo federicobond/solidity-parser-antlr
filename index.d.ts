@@ -600,9 +600,11 @@ export interface Visitor {
   BooleanLiteral?: (node: BooleanLiteral) => any;
   Identifier?: (node: Identifier) => any;
   BinaryOperation?: (node: BinaryOperation) => any;
+  UnaryOperation?: (node: UnaryOperation) => any;
   Conditional?: (node: Conditional) => any;
   IndexAccess?: (node: IndexAccess) => any;
   MemberAccess?: (node: MemberAccess) => any;
+  FunctionCall?: (node: FunctionCall) => any;
   Break?: (node: Break) => any;
   HexNumber?: (node: HexNumber) => any;
   DecimalNumber?: (node: DecimalNumber) => any;
