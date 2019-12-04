@@ -410,6 +410,7 @@ export interface UnaryOperation extends BaseASTNode {
 }
 export interface Conditional extends BaseASTNode {
   type: 'Conditional';
+  condition: ASTNode;
   trueExpression: ASTNode;
   falseExpression: ASTNode;
 }
