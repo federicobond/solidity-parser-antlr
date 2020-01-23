@@ -6,7 +6,7 @@
   "types": "./index.d.ts",
   "scripts": {
     "antlr4": "sh scripts/antlr4.sh",
-    "build": "rm -rf dist && babel --out-dir=dist src",
+    "build": "rm -rf dist && babel --out-dir=dist src --copy-files",
     "prepare": "yarn build",
     "prettier": "find src -name *.js | egrep -v '^src/(lib|antlr4)/' | xargs prettier --no-semi --single-quote --write",
     "eslint": "eslint src",
@@ -23,6 +23,7 @@
   "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-plugin-inline-import": "^3.0.0",
     "babel-preset-env": "^1.7.0",
     "chai": "^4.2.0",
     "eslint": "^6.2.2",
