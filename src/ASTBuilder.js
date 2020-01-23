@@ -272,23 +272,25 @@ const transformAST = {
   },
 
   TypeName(ctx) {
-    if (ctx.children.length > 2) {
-      let length = null
-      if (ctx.children.length === 4) {
-        length = this.visit(ctx.getChild(2))
-      }
+    if (ctx.children) {
+      if (ctx.children.length > 2) {
+        let length = null
+        if (ctx.children.length === 4) {
+          length = this.visit(ctx.getChild(2))
+        }
 
-      return {
-        type: 'ArrayTypeName',
-        baseTypeName: this.visit(ctx.typeName()),
-        length
+        return {
+          type: 'ArrayTypeName',
+          baseTypeName: this.visit(ctx.typeName()),
+          length
+        }
       }
-    }
-    if (ctx.children.length === 2) {
-      return {
-        type: 'ElementaryTypeName',
-        name: toText(ctx.getChild(0)),
-        stateMutability: toText(ctx.getChild(1))
+      if (ctx.children.length === 2) {
+        return {
+          type: 'ElementaryTypeName',
+          name: toText(ctx.getChild(0)),
+          stateMutability: toText(ctx.getChild(1))
+        }
       }
     }
     return this.visit(ctx.getChild(0))
