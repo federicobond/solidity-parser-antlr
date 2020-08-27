@@ -560,6 +560,7 @@ export interface Visitor {
   ModifierDefinition?: (node: ModifierDefinition) => any;
   ModifierInvocation?: (node: ModifierInvocation) => any;
   FunctionDefinition?: (node: FunctionDefinition) => any;
+  FunctionCall?: (node:  FunctionCall) => any;
   EventDefinition?: (node: EventDefinition) => any;
   EnumValue?: (node: EnumValue) => any;
   EnumDefinition?: (node: EnumDefinition) => any;
@@ -621,6 +622,7 @@ export interface Visitor {
   'ModifierDefinition:exit'?: (node: ModifierDefinition) => any;
   'ModifierInvocation:exit'?: (node: ModifierInvocation) => any;
   'FunctionDefinition:exit'?: (node: FunctionDefinition) => any;
+  'FunctionCall:exit'?: (node: FunctionCall) => any;
   'EventDefinition:exit'?: (node: EventDefinition) => any;
   'EnumValue:exit'?: (node: EnumValue) => any;
   'EnumDefinition:exit'?: (node: EnumDefinition) => any;
